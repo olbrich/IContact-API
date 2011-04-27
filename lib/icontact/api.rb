@@ -1,27 +1,25 @@
-require 'rubygems'
 require 'net/http'
-require 'digest'
+require 'net/https'
 require 'json'
 
 class Icontact
   class Api
-    VERSION = "0.1"
-    API_VERSION = "2.0"
-    DOMAIN = 'http://app.icontact.com/icp'
+    VERSION = "0.3"
+    API_VERSION = "2.2"
+    URL = 'https://app.icontact.com/icp'
     API_KEY = "API_KEY"
-    API_SECRET = "API_SECRET"
     attr_accessor :username
     attr_accessor :password
-    attr_accessor :key
-    attr_accessor :secret
-    attr_accessor :domain
+    attr_accessor :app_id
+    attr_accessor :url
+    attr_accessor :api_version
   
-    def initialize(username, password)
+    def initialize(username=nil, password=nil)
       self.username = username
       self.password = password
-      self.domain = DOMAIN
-      self.key = API_KEY
-      self.secret = API_SECRET
+      self.url = URL
+      self.app_id = API_KEY
+      self.api_version = API_VERSION
     end
     
     # Package up any options into a query string and format it properly for the server
@@ -52,25 +50,17 @@ class Icontact
       {'code'=>code, 'body' => (JSON.parse(response) rescue response)}
     end
   
-    def request_signature(method, timestamp, random, url)
-      Digest::SHA1.hexdigest("#{secret}#{password}#{timestamp}#{random}#{method.to_s.upcase}#{url}")
-    end
-  
     # populate headers required by the icontact server on each request for authentication
     # Accept and Content-Type are set to application/json to use JSON objects for the 
     # data exchange.  Also accepts text/xml for either, but then you have to deal with XML encoding and decoding
     # manually
-    def apply_headers(method, req, url)
-      timestamp = Time.now.getgm.to_i
-      random = Kernel.rand(999999)
-      req.add_field('API_VERSION', API_VERSION)
-      req.add_field('ACCEPT','application/json')
+    def apply_headers(req)
+      req.add_field('API-Version', self.api_version)
+      req.add_field('accept','application/json')
       req.add_field('Content-Type','application/json')
-      req.add_field('API_KEY', self.key)
-      req.add_field('API_USERNAME', self.username)
-      req.add_field('API_TIMESTAMP', timestamp)
-      req.add_field('API_NUMBER', random)
-      req.add_field('API_SIGNATURE', request_signature(method, timestamp, random, url))
+      req.add_field('API-Appid', self.app_id)
+      req.add_field('API-Username', self.username)
+      req.add_field('API-Password', self.password)
       return req
     end
   
@@ -93,20 +83,22 @@ class Icontact
       # options passed as optional parameter show up as an array
       options = options.first if options.kind_of? Array
       query_options = self.class.package_query_params(options)
-      full_url = URI.parse("#{self.domain}#{url}#{query_options}")
+      full_url = URI.parse("#{self.url}#{url}#{query_options}")
     
       # create an object of the class required to process this method
       klass = Object.module_eval("::Net::HTTP::#{kind.to_s.capitalize}", __FILE__, __LINE__)
       request = klass.new([full_url.path, full_url.query].compact.join('?'))
-      request = apply_headers(kind, request, full_url)
-    
+      request = apply_headers(request)
       # take passed data and encode it
       request.body = self.class.body_encoder(data) if data
     
-      Net::HTTP.start(full_url.host, full_url.port) do |http|
-        response = http.request(request)
-        return self.class.parse_response(response.code, response.body)
-      end  
+      http = Net::HTTP.new(full_url.host, full_url.port)
+      http.use_ssl = true
+      http.verify_mode = OpenSSL::SSL::VERIFY_NONE
+      response = http.start do |web|
+        web.request(request)
+      end
+      return self.class.parse_response(response.code, response.body)
     end
   end
 end
