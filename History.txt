@@ -1,3 +1,6 @@
+== 0.3.1 2012-08-24
+  * pull request #1: modified for 1.9 compatibility
+
 == 0.0.1 2009-01-16
 
 * 1 major enhancement:
