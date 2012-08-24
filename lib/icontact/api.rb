@@ -28,9 +28,9 @@ class Icontact
       return nil if params.nil? || params.empty?
       massaged_params = params.map do |key, value|
         case value
-          when Array:
+          when Array
             "#{key}=#{value.join(',')}"
-          when Time:
+          when Time
             "#{key}=#{value.strftime("%Y-%m-%dT%H:%M:%S")}#{"%+0.2d:00" % (value.gmtoff / 3600)}"
           else
             "#{key}=#{value}"
