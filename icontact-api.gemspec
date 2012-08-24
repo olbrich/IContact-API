@@ -4,12 +4,12 @@
 # -*- encoding: utf-8 -*-
 
 Gem::Specification.new do |s|
-  s.name = %q{icontact-api}
-  s.version = "0.3.0"
+  s.name = "icontact-api"
+  s.version = "0.3.1"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Kevin Olbrich"]
-  s.date = %q{2011-04-27}
+  s.date = "2012-08-24"
   s.email = ["kevin.olbrich+icontact-api@gmail.com"]
   s.extra_rdoc_files = [
     "README.rdoc"
@@ -20,6 +20,7 @@ Gem::Specification.new do |s|
     "README.rdoc",
     "Rakefile",
     "VERSION",
+    "icontact-api.gemspec",
     "lib/icontact-api.rb",
     "lib/icontact/api.rb",
     "script/console",
@@ -30,17 +31,12 @@ Gem::Specification.new do |s|
     "spec/spec_helper.rb",
     "tasks/rspec.rake"
   ]
-  s.homepage = %q{http://github.com/olbrich/IContact-API}
+  s.homepage = "http://github.com/olbrich/IContact-API"
   s.require_paths = ["lib"]
-  s.rubygems_version = %q{1.3.7}
-  s.summary = %q{A thin wrapper around the iContact API}
-  s.test_files = [
-    "spec/api_spec.rb",
-    "spec/spec_helper.rb"
-  ]
+  s.rubygems_version = "1.8.24"
+  s.summary = "A thin wrapper around the iContact API"
 
   if s.respond_to? :specification_version then
-    current_version = Gem::Specification::CURRENT_SPECIFICATION_VERSION
     s.specification_version = 3
 
     if Gem::Version.new(Gem::VERSION) >= Gem::Version.new('1.2.0') then
