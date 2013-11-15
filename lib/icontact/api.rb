@@ -95,6 +95,7 @@ class Icontact
       http = Net::HTTP.new(full_url.host, full_url.port)
       http.use_ssl = true
       http.verify_mode = OpenSSL::SSL::VERIFY_NONE
+      http.read_timeout = 500
       response = http.start do |web|
         web.request(request)
       end
